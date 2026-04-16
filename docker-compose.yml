@@ -13,7 +13,7 @@ services:
       - db_data:/var/lib/postgresql/data
 
   odoo:
-    image: satheeshkumar221297/odoo18-custom:latest
+    build: .
     container_name: odoo18
     depends_on:
       - db
@@ -21,7 +21,6 @@ services:
       - "8069:8069"
     volumes:
       - /opt/odoo18/config:/etc/odoo
-      - /opt/odoo18/custom-addons:/mnt/extra-addons
     restart: always
 
 volumes:

@@ -1,0 +1,42 @@
+name: Odoo18 CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Build Docker image
+      - name: Build Image
+        run: docker build -t ${{ secrets.DOCKER_USER }}/odoo18-custom:latest .
+
+      # 3. Login Docker Hub
+      - name: Docker Login
+        run: echo "${{ secrets.DOCKER_PASS }}" | docker login -u "${{ secrets.DOCKER_USER }}" --password-stdin
+
+      # 4. Push image
+      - name: Push Image
+        run: docker push ${{ secrets.DOCKER_USER }}/odoo18-custom:latest
+
+      # 5. Deploy to server
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt/odoo18
+
+            docker-compose pull
+            docker-compose up -d
+
+            docker image prune -f

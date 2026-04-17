@@ -11,17 +11,29 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - odoo-network
 
   odoo:
-    build: .
+    image: satheeshkumar221297/odoo18-custom:latest
     container_name: odoo18
     depends_on:
       - db
+    restart: always
     ports:
       - "8069:8069"
     volumes:
       - /opt/odoo18/config:/etc/odoo
-    restart: always
+      - /opt/odoo18/data:/var/lib/odoo      # ✅ Persistent filestore
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+    networks:
+      - odoo-network
+
+networks:
+  odoo-network:
 
 volumes:
   db_data:

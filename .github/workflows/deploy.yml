@@ -35,6 +35,12 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /opt/odoo18
-              docker-compose down
-              docker-compose up -d --build --remove-orphans
+
+             docker compose pull
+
+            # Force clean removal of old containers
+              docker compose down --remove-orphans
+
+              docker compose up -d
+
               docker image prune -f

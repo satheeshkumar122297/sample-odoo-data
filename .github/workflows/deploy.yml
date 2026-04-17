@@ -34,13 +34,20 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /opt/odoo18
+            # Ensure required directories exist
+                mkdir -p /opt/odoo18/data
+                mkdir -p /opt/odoo18/config
 
-             docker compose pull
+             # 🔥 FIX PERMISSIONS (CRITICAL)
+               sudo chown -R 101:101 /opt/odoo18/data
+              sudo chmod -R 755 /opt/odoo18/data
 
-            # Force clean removal of old containers
-              docker compose down --remove-orphans
+                # Pull latest image
+                docker compose pull
 
-              docker compose up -d
+              # Recreate containers cleanly
+                docker compose down --remove-orphans
+                docker compose up -d
 
-              docker image prune -f
+               # Cleanup unused images
+               docker image prune -f
